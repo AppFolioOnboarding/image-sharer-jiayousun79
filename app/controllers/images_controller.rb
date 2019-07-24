@@ -8,9 +8,15 @@ class ImagesController < ApplicationController
     @image = Image.new(image_params)
     if @image.valid?
       @image.save!
-      redirect_to :new_image
+      redirect_to image_path(@image)
     else
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def show
+    @image = Image.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path
   end
 end
