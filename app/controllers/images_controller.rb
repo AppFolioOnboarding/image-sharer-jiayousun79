@@ -4,7 +4,12 @@ class ImagesController < ApplicationController
   end
 
   def create
-    Image.create!(url: params[:image][:url])
-    redirect_to :new_image
+    @image = Image.new(url: params[:image][:url])
+    if @image.valid?
+      @image.save!
+      redirect_to :new_image
+    else
+      render :new
+    end
   end
 end
