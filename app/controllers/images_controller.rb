@@ -4,7 +4,13 @@ class ImagesController < ApplicationController
   end
 
   def create
-    Image.create!(url: params[:image][:url])
-    redirect_to :new_image
+    image_params = params.require(:image).permit(:url)
+    @image = Image.new(image_params)
+    if @image.valid?
+      @image.save!
+      redirect_to :new_image
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 end
