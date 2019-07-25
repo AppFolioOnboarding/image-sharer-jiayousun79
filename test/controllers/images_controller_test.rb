@@ -8,6 +8,11 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input[type="submit"]'
   end
 
+  def test_root
+    get root_path
+    assert_response :success
+  end
+
   def test_create__valid
     assert_difference 'Image.count', 1 do
       post images_path, params: {
@@ -18,6 +23,8 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to image_path(Image.last)
+    follow_redirect!
+    assert_select '.alert-success', text: 'Post successfully created', count: 1
   end
 
   def test_create__invalid
