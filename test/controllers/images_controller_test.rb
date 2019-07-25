@@ -44,6 +44,8 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     get image_path(image)
 
     assert_select "img[src='#{image.url}']"
+
+    assert_select '.notice', count: 0
   end
 
   def test_show__image_does_not_exist
