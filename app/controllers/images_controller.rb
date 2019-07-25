@@ -7,6 +7,7 @@ class ImagesController < ApplicationController
     @image = Image.new(url: params[:image][:url])
     if @image.valid?
       @image.save!
+      flash[:success] = 'Post successfully created'
       redirect_to image_path(@image)
     else
       render :new
