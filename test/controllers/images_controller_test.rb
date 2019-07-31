@@ -6,6 +6,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'form[action="/images"]'
     assert_select 'input[name="image[url]"]'
     assert_select 'input[type="submit"]'
+    assert_select 'a[href=?]', images_path
   end
 
   def test_root
@@ -46,11 +47,48 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "img[src='#{image.url}']"
 
     assert_select '.notice', count: 0
+
+    assert_select 'a[href=?]', images_path
   end
 
   def test_show__image_does_not_exist
     get image_path(-1)
 
     assert_redirected_to root_path
+  end
+
+  def test_index__display_image_nonempty
+    image = Image.create!(url: 'https://uploads-ssl.webflow.com/54fcefe421c2e6761cc51a4e/58a4e00e0732e3562fac11bd_homepage_logo.png')
+
+    get images_path
+
+    assert_select "img[src='#{image.url}']"
+  end
+
+  def test_index__display_image_empty
+    get images_path
+
+    assert_response :ok
+
+    assert_select 'img', count: 0
+  end
+
+  def test_index__image_order
+    ordered_images = [Image.create!(url: 'https://pbs.twimg.com/profile_images/971359833826918400/G1aAQGO-_400x400.jpg',
+                                    created_at: 7.minutes.ago(Time.now)),
+                      Image.create!(url: 'http://www.clker.com/cliparts/V/H/K/p/p/u/number-2-black-hi.png',
+                                    created_at: 8.minutes.ago(Time.now)),
+                      Image.create!(url: 'https://web.uri.edu/assessment/files/3-countdown.jpg',
+                                    created_at: 9.minutes.ago(Time.now)),
+                      Image.create!(url: 'https://www.rhythmroomstudio.com/uploads/1/2/0/8/12089761/s945537655474991480_p10_i3_w1280.jpeg',
+                                    created_at: 10.minutes.ago(Time.now))]
+
+    get images_path
+
+    assert_select 'tr' do |trs|
+      trs.each_with_index do |tr, index|
+        assert_select tr, "img[src='#{ordered_images[index].url}']", 1
+      end
+    end
   end
 end

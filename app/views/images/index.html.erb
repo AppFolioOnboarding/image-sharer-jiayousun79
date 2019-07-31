@@ -1,0 +1,10 @@
+<h1>Image List</h1>
+<table>
+  <% @images.each do |image| %>
+    <tr>
+      <% if image.url %>
+        <td><%= image_tag(image.url, :size => "400x400") %></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
