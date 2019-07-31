@@ -6,6 +6,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'form[action="/images"]'
     assert_select 'input[name="image[url]"]'
     assert_select 'input[type="submit"]'
+    assert_select 'a[href=?]', images_path
   end
 
   def test_root
@@ -46,6 +47,8 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "img[src='#{image.url}']"
 
     assert_select '.notice', count: 0
+
+    assert_select 'a[href=?]', images_path
   end
 
   def test_show__image_does_not_exist
