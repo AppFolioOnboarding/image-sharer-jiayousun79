@@ -5,6 +5,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     get new_image_path
     assert_select 'form[action="/images"]'
     assert_select 'input[name="image[url]"]'
+    assert_select 'input[name="image[tag_list]"]'
     assert_select 'input[type="submit"]'
     assert_select 'a[href=?]', images_path
   end
@@ -14,7 +15,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_create__valid
+  def test_create__valid_notag
     assert_difference 'Image.count', 1 do
       post images_path, params: {
         image: {
@@ -28,13 +29,38 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select '.alert-success', text: 'Post successfully created', count: 1
   end
 
+  def test_create__valid_withtag
+    tags_string = 'test, show'
+
+    tags_string_arr = %w[test show]
+
+    assert_difference 'Image.count', 1 do
+      post images_path, params: {
+        image: {
+          url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg',
+          tag_list: tags_string
+        }
+      }
+    end
+
+    assert_redirected_to image_path(Image.last)
+    follow_redirect!
+    assert_select '.alert-success', text: 'Post successfully created', count: 1
+    assert_equal 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg',
+                 Image.last.url
+    assert_equal tags_string_arr, Image.last.tag_list
+  end
+
   def test_create__invalid
+    tags_string = 'test,show'
+
     assert_difference 'Image.count', 0 do
-      post images_path, params: { image: { url: 'random' } }
+      post images_path, params: { image: { url: 'random', tag_list: tags_string } }
     end
     assert_response :unprocessable_entity
     assert_select 'form[action="/images"]'
     assert_select 'input[name="image[url]"][value="random"]'
+    assert_select "input[name='image[tag_list]'][value='#{tags_string}']"
     assert_select '.url .error'
     assert_select 'input[type="submit"]'
   end
