@@ -65,8 +65,13 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input[type="submit"]'
   end
 
-  def test_show
-    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg')
+  def test_show__have_tag
+    tags_string = 'test, show'
+
+    tags_string_arr = %w[test show]
+
+    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg',
+                          tag_list: tags_string)
 
     get image_path(image)
 
@@ -75,6 +80,20 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select '.notice', count: 0
 
     assert_select 'a[href=?]', images_path
+
+    assert_select 'li' do |lis|
+      lis.each_with_index do |li, index|
+        assert_equal li.text, tags_string_arr[index]
+      end
+    end
+  end
+
+  def test_show_no_tag
+    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg')
+
+    get image_path(image)
+
+    assert_select 'li', count: 0
   end
 
   def test_show__image_does_not_exist
