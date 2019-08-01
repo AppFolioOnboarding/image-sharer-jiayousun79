@@ -103,11 +103,30 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_index__display_image_nonempty
-    image = Image.create!(url: 'https://uploads-ssl.webflow.com/54fcefe421c2e6761cc51a4e/58a4e00e0732e3562fac11bd_homepage_logo.png')
+    tags_string = 'test, show'
+
+    tags_string_arr = %w[test show]
+
+    image = Image.create!(url: 'https://uploads-ssl.webflow.com/54fcefe421c2e6761cc51a4e/58a4e00e0732e3562fac11bd_homepage_logo.png',
+                          tag_list: tags_string)
 
     get images_path
 
     assert_select "img[src='#{image.url}']"
+
+    assert_select 'li' do |lis|
+      lis.each_with_index do |li, index|
+        assert_equal li.text, tags_string_arr[index]
+      end
+    end
+  end
+
+  def test_index_no_tag
+    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg')
+
+    get images_path(image)
+
+    assert_select 'li', count: 0
   end
 
   def test_index__display_image_empty

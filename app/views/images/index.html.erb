@@ -3,7 +3,14 @@
   <% @images.each do |image| %>
     <tr>
       <% if image.url %>
-        <td><%= image_tag(image.url, :size => "400x400") %></td>
+        <td>
+          <%= image_tag(image.url, :size => "400x400") %>
+          <ul>
+            <% image.tag_list.each do |tag| %>
+                <li><%= tag %></li>
+            <% end %>
+          </ul>
+        </td>
       <% end %>
     </tr>
   <% end %>
