@@ -1,6 +1,7 @@
 AllCops:
   Exclude:
     - 'db/schema.rb'
+    - 'db/migrate/*'
     - 'log/**/*'
     - 'tmp/**/*'
     - 'vendor/**/*'
@@ -19,6 +20,9 @@ Layout/MultilineMethodCallIndentation:
 
 Metrics/LineLength:
   Max: 112  # Maximum line length from `rails new`
+
+Metrics/ClassLength:
+  Max: 1000
 
 Rails:
   Enabled: true

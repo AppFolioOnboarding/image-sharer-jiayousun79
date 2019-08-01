@@ -1,2 +1,11 @@
-<%= image_tag(@image.url, :size => "400x400") %>
 <%= link_to 'Homepage', images_path %>
+<br>
+<br>
+<%= image_tag(@image.url, :size => "400x400") %>
+<br>
+<br>
+<ul>
+  <% @image.tag_list.each do |tag| %>
+      <li><%= tag %></li>
+  <% end %>
+</ul>

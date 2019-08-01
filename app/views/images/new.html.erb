@@ -1,5 +1,6 @@
 <%= link_to 'Homepage', images_path %>
 <%= simple_form_for @image do |f| %>
     <%= f.input :url %>
+    <%= f.input :tag_list, input_html: {value: f.object.tag_list.join(',')} %>
     <%= f.button :submit %>
 <% end %>

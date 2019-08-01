@@ -5,6 +5,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     get new_image_path
     assert_select 'form[action="/images"]'
     assert_select 'input[name="image[url]"]'
+    assert_select 'input[name="image[tag_list]"]'
     assert_select 'input[type="submit"]'
     assert_select 'a[href=?]', images_path
   end
@@ -14,7 +15,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_create__valid
+  def test_create__valid_notag
     assert_difference 'Image.count', 1 do
       post images_path, params: {
         image: {
@@ -28,19 +29,49 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select '.alert-success', text: 'Post successfully created', count: 1
   end
 
+  def test_create__valid_withtag
+    tags_string = 'test, show'
+
+    tags_string_arr = %w[test show]
+
+    assert_difference 'Image.count', 1 do
+      post images_path, params: {
+        image: {
+          url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg',
+          tag_list: tags_string
+        }
+      }
+    end
+
+    assert_redirected_to image_path(Image.last)
+    follow_redirect!
+    assert_select '.alert-success', text: 'Post successfully created', count: 1
+    assert_equal 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg',
+                 Image.last.url
+    assert_equal tags_string_arr, Image.last.tag_list
+  end
+
   def test_create__invalid
+    tags_string = 'test,show'
+
     assert_difference 'Image.count', 0 do
-      post images_path, params: { image: { url: 'random' } }
+      post images_path, params: { image: { url: 'random', tag_list: tags_string } }
     end
     assert_response :unprocessable_entity
     assert_select 'form[action="/images"]'
     assert_select 'input[name="image[url]"][value="random"]'
+    assert_select "input[name='image[tag_list]'][value='#{tags_string}']"
     assert_select '.url .error'
     assert_select 'input[type="submit"]'
   end
 
-  def test_show
-    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg')
+  def test_show__have_tag
+    tags_string = 'test, show'
+
+    tags_string_arr = %w[test show]
+
+    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg',
+                          tag_list: tags_string)
 
     get image_path(image)
 
@@ -49,6 +80,20 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select '.notice', count: 0
 
     assert_select 'a[href=?]', images_path
+
+    assert_select 'li' do |lis|
+      lis.each_with_index do |li, index|
+        assert_equal li.text, tags_string_arr[index]
+      end
+    end
+  end
+
+  def test_show_no_tag
+    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg')
+
+    get image_path(image)
+
+    assert_select 'li', count: 0
   end
 
   def test_show__image_does_not_exist
@@ -58,11 +103,30 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_index__display_image_nonempty
-    image = Image.create!(url: 'https://uploads-ssl.webflow.com/54fcefe421c2e6761cc51a4e/58a4e00e0732e3562fac11bd_homepage_logo.png')
+    tags_string = 'test, show'
+
+    tags_string_arr = %w[test show]
+
+    image = Image.create!(url: 'https://uploads-ssl.webflow.com/54fcefe421c2e6761cc51a4e/58a4e00e0732e3562fac11bd_homepage_logo.png',
+                          tag_list: tags_string)
 
     get images_path
 
     assert_select "img[src='#{image.url}']"
+
+    assert_select 'li' do |lis|
+      lis.each_with_index do |li, index|
+        assert_equal li.text, tags_string_arr[index]
+      end
+    end
+  end
+
+  def test_index_no_tag
+    image = Image.create!(url: 'https://storage.googleapis.com/gd-wagtail-prod-assets/original_images/evolving_google_identity_share.jpg')
+
+    get images_path(image)
+
+    assert_select 'li', count: 0
   end
 
   def test_index__display_image_empty
