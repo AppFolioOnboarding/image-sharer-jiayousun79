@@ -127,6 +127,8 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     get images_path(image)
 
     assert_select 'li', count: 0
+
+    assert_select 'a[href=?]', images_path
   end
 
   def test_index__display_image_empty
