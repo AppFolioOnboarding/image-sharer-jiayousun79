@@ -1,6 +1,11 @@
 class ImagesController < ApplicationController
   def index
-    @images = Image.all.order(created_at: :desc)
+    if params[:tag]
+      @images = Image.tagged_with(params[:tag]).order(created_at: :desc)
+      flash.now[:warning] = 'No images under this tag' unless @images.any?
+    else
+      @images = Image.all.order(created_at: :desc)
+    end
   end
 
   def new
