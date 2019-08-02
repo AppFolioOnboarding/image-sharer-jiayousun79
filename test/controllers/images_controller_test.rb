@@ -183,4 +183,25 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select 'tr', count: 3
   end
+
+  def test_destroy
+    image = Image.create!(url: 'https://pbs.twimg.com/profile_images/971359833826918400/G1aAQGO-_400x400.jpg')
+    assert_difference 'Image.count', -1 do
+      delete image_path(image)
+    end
+
+    assert_redirected_to images_path
+    follow_redirect!
+    assert_select '.alert-success', text: 'Post successfully deleted', count: 1
+  end
+
+  def test_destroy__nothing
+    assert_difference 'Image.count', 0 do
+      delete image_path(-1)
+    end
+
+    assert_redirected_to images_path
+    follow_redirect!
+    assert_select '.alert-warning', text: 'Nothing to delete', count: 1
+  end
 end

@@ -2,6 +2,7 @@
 <br>
 <%= link_to 'Homepage', images_path %>
 <br>
+<br>
 <table>
   <% @images.each do |image| %>
     <tr>
@@ -13,6 +14,9 @@
                 <li><%= link_to tag, images_path(tag: tag) %></li>
             <% end %>
           </ul>
+          <%= link_to 'Delete this image', image_path(image), method: :delete, data: { confirm: 'Are you sure?' } %>
+          <br>
+          <br>
         </td>
       <% end %>
     </tr>
