@@ -29,4 +29,13 @@ class ImagesController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path
   end
+
+  def destroy
+    Image.destroy(params[:id])
+    redirect_to images_path
+    flash[:success] = 'Post successfully deleted'
+  rescue ActiveRecord::RecordNotFound
+    redirect_to images_path
+    flash[:warning] = 'Nothing to delete'
+  end
 end
