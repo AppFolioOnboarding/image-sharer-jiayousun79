@@ -127,6 +127,8 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     get images_path(image)
 
     assert_select 'li', count: 0
+
+    assert_select 'a[href=?]', images_path
   end
 
   def test_index__display_image_empty
@@ -154,5 +156,31 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
         assert_select tr, "img[src='#{ordered_images[index].url}']", 1
       end
     end
+  end
+
+  def test_index__no_image_under_this_tag
+    Image.create!(url: 'https://pbs.twimg.com/profile_images/971359833826918400/G1aAQGO-_400x400.jpg',
+                  tag_list: 'one')
+
+    get images_path, params: { tag: 'two' }
+
+    assert_select 'tr', count: 0
+
+    assert_select '.alert-warning', text: 'No images under this tag', count: 1
+  end
+
+  def test_index__tag_filtering
+    Image.create!(url: 'https://pbs.twimg.com/profile_images/971359833826918400/G1aAQGO-_400x400.jpg',
+                  tag_list: 'one')
+    Image.create!(url: 'http://www.clker.com/cliparts/V/H/K/p/p/u/number-2-black-hi.png',
+                  tag_list: 'two')
+    Image.create!(url: 'https://web.uri.edu/assessment/files/3-countdown.jpg',
+                  tag_list: 'two')
+    Image.create!(url: 'https://www.rhythmroomstudio.com/uploads/1/2/0/8/12089761/s945537655474991480_p10_i3_w1280.jpeg',
+                  tag_list: 'two')
+
+    get images_path, params: { tag: 'two' }
+
+    assert_select 'tr', count: 3
   end
 end
