@@ -12,7 +12,9 @@ module PageObjects
       end
 
       def click_tag!(tag_name)
-        # TODO
+        tag = tag_list.find { |tags| tags.tag.text == tag_name }
+        tag&.tag&.node&.click
+        window.change_to(IndexPage)
       end
     end
   end

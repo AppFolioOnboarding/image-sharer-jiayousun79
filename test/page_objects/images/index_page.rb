@@ -21,7 +21,7 @@ module PageObjects
       end
 
       def clear_tag_filter!
-        # TODO
+        IndexPage.visit
       end
     end
   end
