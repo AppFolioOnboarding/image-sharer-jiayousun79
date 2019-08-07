@@ -2,28 +2,26 @@ require 'flow_test_helper'
 
 class ImagesCrudTest < FlowTestCase
   test 'add an image' do
-    images_index_page = PageObjects::Images::IndexPage.visit
-
-    new_image_page = images_index_page.add_new_image!
+    new_image_page = PageObjects::Images::NewPage.visit
 
     tags = %w[foo bar]
     new_image_page = new_image_page.create_image!(
       url: 'invalid',
       tags: tags.join(', ')
     ).as_a(PageObjects::Images::NewPage)
-    assert_equal 'must be a valid URL', new_image_page.url.error_message
+    assert_equal 'is not a valid URL', new_image_page.error_message.text
 
     image_url = 'https://media3.giphy.com/media/EldfH1VJdbrwY/200.gif'
     new_image_page.url.set(image_url)
 
     image_show_page = new_image_page.create_image!
-    assert_equal 'You have successfully added an image.', image_show_page.flash_message(:success)
+    assert_equal 'Post successfully created', image_show_page.flash_message(:success)
 
-    assert_equal image_url, image_show_page.image_url
+    assert image_show_page.image_present?(image_url)
     assert_equal tags, image_show_page.tags
 
     images_index_page = image_show_page.go_back_to_index!
-    assert images_index_page.showing_image?(url: image_url, tags: tags)
+    assert images_index_page.showing_image?(image_url, tags.join(', '))
   end
 
   test 'delete an image' do

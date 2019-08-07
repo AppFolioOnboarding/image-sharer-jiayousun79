@@ -3,26 +3,17 @@ module PageObjects
     class ShowPage < PageObjects::Document
       path :image
 
-      def image_url
-        # TODO
+      def image_present?(url)
+        node.find("img[src=\"#{url}\"]").present?
       end
 
       def tags
-        # TODO
-      end
-
-      def delete
-        # TODO
-        yield node.driver.browser.switch_to.alert
-      end
-
-      def delete_and_confirm!
-        # TODO
-        window.change_to(IndexPage)
+        node.all('li').map(&:text)
       end
 
       def go_back_to_index!
-        # TODO
+        node.click_on('Homepage')
+        window.change_to(IndexPage)
       end
     end
   end
