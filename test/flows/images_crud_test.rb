@@ -27,32 +27,28 @@ class ImagesCrudTest < FlowTestCase
   test 'delete an image' do
     cute_puppy_url = 'http://ghk.h-cdn.co/assets/16/09/980x490/landscape-1457107485-gettyimages-512366437.jpg'
     ugly_cat_url = 'http://www.ugly-cat.com/ugly-cats/uglycat041.jpg'
-    Image.create!([
+    images_array = Image.create!([
       { url: cute_puppy_url, tag_list: 'puppy, cute' },
       { url: ugly_cat_url, tag_list: 'cat, ugly' }
     ])
 
     images_index_page = PageObjects::Images::IndexPage.visit
     assert_equal 2, images_index_page.images.count
-    assert images_index_page.showing_image?(url: ugly_cat_url)
-    assert images_index_page.showing_image?(url: cute_puppy_url)
+    assert images_index_page.showing_image?(ugly_cat_url, images_array[1].tag_list)
+    assert images_index_page.showing_image?(cute_puppy_url, images_array[0].tag_list)
 
-    image_to_delete = images_index_page.images.find do |image|
-      image.url == ugly_cat_url
-    end
-    image_show_page = image_to_delete.view!
-
-    image_show_page.delete do |confirm_dialog|
+    images_index_page.delete(ugly_cat_url) do |confirm_dialog|
       assert_equal 'Are you sure?', confirm_dialog.text
       confirm_dialog.dismiss
     end
 
-    images_index_page = image_show_page.delete_and_confirm!
-    assert_equal 'You have successfully deleted the image.', images_index_page.flash_message(:success)
+    images_index_page.delete(ugly_cat_url, &:accept)
+
+    assert_equal 'Post successfully deleted', images_index_page.flash_message(:success)
 
     assert_equal 1, images_index_page.images.count
-    assert_not images_index_page.showing_image?(url: ugly_cat_url)
-    assert images_index_page.showing_image?(url: cute_puppy_url)
+    assert_not images_index_page.showing_image?(ugly_cat_url, images_array[1].tag_list)
+    assert images_index_page.showing_image?(cute_puppy_url, images_array[0].tag_list)
   end
 
   test 'view images associated with a tag' do
