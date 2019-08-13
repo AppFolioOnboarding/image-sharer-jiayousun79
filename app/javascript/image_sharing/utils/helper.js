@@ -1,3 +1,5 @@
+/* eslint-disable import/no-unresolved, import/no-duplicates, import/no-extraneous-dependencies */
+
 import 'whatwg-fetch';
 
 const HEADERS = {
@@ -16,12 +18,12 @@ function getCsrfToken() {
  */
 export function serialize(obj, prefix) {
   const parts = [];
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (obj[key] !== undefined && obj[key] !== null) {
       const param = prefix ? `${prefix}[${key}]` : key;
       const value = obj[key];
 
-      if (typeof(value) === 'object') {
+      if (typeof (value) === 'object') {
         parts.push(serialize(value, param));
       } else {
         parts.push(`${encodeURIComponent(param)}=${encodeURIComponent(value)}`);
@@ -48,10 +50,10 @@ function checkResponseStatus(res) {
   } else if (status < 200 || status >= 300) {
     return res
       .text()
-      .then(text => {
+      .then((text) => {
         let data;
         try { data = JSON.parse(text); } catch (e) {} // eslint-disable-line no-empty
-        const error = new Error(!data && text || res.statusText);
+        const error = new Error((!data && text) || res.statusText);
         error.data = data;
         throw error;
       });
