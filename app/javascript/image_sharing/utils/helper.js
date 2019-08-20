@@ -1,6 +1,7 @@
 /* eslint-disable import/no-unresolved, import/no-duplicates, import/no-extraneous-dependencies */
 
 import 'whatwg-fetch';
+import fetch from 'node-fetch';
 
 const HEADERS = {
   Accept: 'application/json',

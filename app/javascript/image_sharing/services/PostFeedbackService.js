@@ -1,7 +1,8 @@
-// import { post } from '../utils/helper';
+import { post } from '../utils/helper';
 
-export class PostFeedbackService {
-  /* Implement your service */
+export default class PostFeedbackService {
+  postFeedback(data, wnd = window) {
+    const origin = wnd.location.origin;
+    return post(`${origin}/api/feedbacks`, data);
+  }
 }
-
-export default PostFeedbackService;
